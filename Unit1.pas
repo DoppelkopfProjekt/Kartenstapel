@@ -145,7 +145,7 @@ begin
   entfernenBildFertig := true;
   verschiebenBilderFertig := false;
   //Alte Position in Tag speichern, wird später gebraucht. Durch den Tag kann man auf ein Array verzichten
-  if self.FImages.Count > 0 then
+  if pIndex <= self.FImages.Count -1 then
   begin
     NeuImage := TImage(self.FImages[pIndex]);
     NeuImage.Tag := neuImage.Left;
