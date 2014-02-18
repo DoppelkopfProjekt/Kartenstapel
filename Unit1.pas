@@ -19,7 +19,7 @@ type
     FOldPos: TPoint;
     procedure MoveImage(x: Integer; n: Integer);
     //True wenn fertig
-    function MoveImageWhenDelete(i, iMax: Integer; n, recDepth: Integer; distance: Integer): Boolean;
+    function MoveImageWhenDelete(i, iMax: Integer; n: Integer; distance: Integer): Boolean;
     function CanMoveImage(x, n: Integer): Boolean;
     procedure OnStartDrag(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
@@ -149,13 +149,13 @@ begin
   end;
   while not entfernenBildFertig or not verschiebenBilderFertig do
   begin
-    altImage.Top := altImage.Top - 4;
+    altImage.Top := altImage.Top - 7;
     altImage.Left := altImage.Left + 1;
     if altImage.Top + altImage.Height <= 0 then
     begin
       entfernenBildFertig := true;
     end;
-    verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, 1, distance);
+    verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
     application.ProcessMessages;
     sleep(5);
     inc(i);
@@ -163,7 +163,7 @@ begin
   altImage.Free;;
 end;
 
-function TForm1.MoveImageWhenDelete(i, iMax: Integer; n, recDepth: Integer; distance: Integer): Boolean;
+function TForm1.MoveImageWhenDelete(i, iMax: Integer; n: Integer; distance: Integer): Boolean;
 var tempImage: TImage;
     currentDistance, newIndex: Integer;
     temp: Boolean;
@@ -188,7 +188,7 @@ begin
     if n <= self.FImages.Count-2 then
     begin
       newIndex :=  floor(Math.Power(Exp(1.0), (1*ln(iMax+1)/(2.0*distance)*distance)));
-      result := self.MoveImageWhenDelete(i-newIndex+1, iMax, n+1, recDepth+1,distance);
+      result := self.MoveImageWhenDelete(i-newIndex+1, iMax, n+1,distance);
     end else
     begin
       if currentDistance >= distance then
