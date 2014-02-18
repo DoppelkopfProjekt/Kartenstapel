@@ -4,9 +4,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, ComCtrls, contnrs, jpeg, Math;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls, contnrs, jpeg, Math, mmsystem;
 
 type
+
+  //TLegeKarteHandler = TNotifyEvent(sender: TObject);
+
   TForm1 = class(TForm)
     Button1: TButton;
     Edit1: TEdit;
@@ -17,7 +20,13 @@ type
     FNamen: TStringList;
     FIsDragging: Boolean;
     FOldPos: TPoint;
+    FSelectedImage: TImage;
+    FTempImage: TObject;
+    FTest: Integer;
+    FWirdGelegt: Boolean;
+    procedure setupKartenStapel(LegeKarteHandler: TNotifyEvent);
     procedure MoveImage(x: Integer; n: Integer);
+    procedure LegeKarte(Sender: TObject);
     //True wenn fertig
     function MoveImageWhenDelete(i, iMax: Integer; n: Integer; distance: Integer): Boolean;
     function CanMoveImage(x, n: Integer): Boolean;
@@ -27,6 +36,7 @@ type
   Y: Integer);
     procedure OnEndDrag(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
+    procedure SelectImage(Sender: TObject);
   public
     procedure deletePicture(pIndex: Integer);
   end;
@@ -41,11 +51,12 @@ implementation
 const minVisible = 20;
       maxVisible = 65;
 
-procedure TForm1.FormCreate(Sender: TObject);
+procedure TForm1.setupKartenStapel(LegeKarteHandler: TNotifyEvent);
 var i: Integer;
     temp: TImage;
     posX: Integer;
 begin
+  self.FSelectedImage := nil;
   self.DoubleBuffered := true;
   FNamen := TStringList.Create;
   FNamen.Add('HE10');
@@ -75,25 +86,13 @@ begin
     temp.Parent := self;
     temp.Stretch := true;
     temp.Left := posX;
-    temp.Top := 25;
+    temp.Top := 40;
+    temp.OnClick := SelectImage;
     posX := posX + round((1/3) * temp.Width);
     FImages.Add(temp);
+    temp.OnDblClick := LegeKarteHandler;
   end;
 
-(*  for i := 0 to 9 do
-  begin
-    if (i < (self.FImages.Count-1)/2) then
-    begin
-      temp := TImage(self.FImages[i]);
-      temp.Top := 25 - 5*i;
-    end;
-    if (i > (self.FImages.Count-1)/2) then
-    begin
-      temp := TImage(self.FImages[i]);
-      temp.Top := 25 - 5*(self.FImages.Count-1-i);
-    end;    
-    
-  end; *)
  // self.Width := posX + 25 + TImage(FImages[0]).width;
   //self.Height := round(TImage(FImages[0]).height+100);
   temp := TImage(self.FImages[self.FImages.Count-1]);
@@ -102,6 +101,76 @@ begin
   temp.OnMouseMove := OnDrag;
   temp.OnMouseUp := OnEndDrag;
 
+  self.FWirdGelegt := false;
+end;
+
+procedure TForm1.LegeKarte(Sender: TObject);
+var index, i: integer;
+begin
+  index := self.FImages.IndexOf(sender);
+  self.FWirdGelegt := true;
+  if self.FSelectedImage <> nil then
+  begin
+    self.FSelectedImage.Top := TImage(self.FImages[(index+1) mod (self.FImages.Count)]).Top;
+    self.FSelectedImage := nil;
+  end;
+  if Sender = self.FImages.Last then
+  begin
+    //Drag beenden
+    self.OnEndDrag(sender, mbLeft, [], 0, 0);
+  end;
+  outputDebugString('umgeschaltet');
+  //ShowMessage(IntToStr(getTickCount-self.FTest));
+  //ShowMessage('Lege Karte');
+  self.deletePicture(index);
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  self.setupKartenStapel(LegeKarte);
+end;
+
+procedure TForm1.SelectImage(Sender: TObject);
+var
+  i: Integer;
+  image: TImage;
+begin
+  FTest := getTickCount;
+  sndPlaySound(pChar('Sound.wav'),SND_ASYNC);
+  self.FWirdGelegt := false;
+ // self.FTempImage := sender;
+  image := TImage(sender);
+  if self.FSelectedImage <> nil then
+  begin
+    //self.FSelectedImage.Top := image.Top;
+  end;
+  for i := 1 to 30 do
+  begin
+    if not self.FWirdGelegt then
+    begin
+      if sender <> self.FSelectedImage then
+      begin
+        OutputDebugString('Scheiﬂe');
+        image.Top := image.Top - 1;
+      end;
+    end;
+      if self.FSelectedImage <> nil then
+      begin
+        OutputDebugString('Scheiﬂe');
+        self.FSelectedImage.Top := self.FSelectedImage.Top + 1;
+      end;
+      sleep(8);
+      application.ProcessMessages;
+  end;
+  if not self.FWirdGelegt and (sender <> self.FSelectedImage) then
+  begin
+    self.FSelectedImage := image;
+  end else
+  begin
+    self.FSelectedImage := nil;
+  end;
+  self.FWirdGelegt := false;
+  //self.FHelpTimer.Enabled := true;
 end;
 
 procedure TForm1.deletePicture(pIndex: Integer);
@@ -109,12 +178,6 @@ var i, iMax, distance: Integer;
     altImage, neuImage, tempImage: TImage;
     entfernenBildFertig, verschiebenBilderFertig: Boolean;
 begin
-  neuImage := TImage(self.FImages.Last);
-  neuImage.Cursor := crHandPoint;
-  neuImage.OnMouseDown := OnStartDrag;
-  neuImage.OnMouseMove := OnDrag;
-  neuImage.OnMouseUp := onEndDrag;
-
   altImage := TImage(self.FImages[pIndex]);
   altImage.Cursor := crHandPoint;
   altImage.OnMouseDown := nil;
@@ -132,6 +195,11 @@ begin
   end;
   self.FNamen.Delete(pIndex);
   self.FImages.Delete(pIndex);
+  neuImage := TImage(self.FImages.Last);
+  neuImage.Cursor := crHandPoint;
+  neuImage.OnMouseDown := OnStartDrag;
+  neuImage.OnMouseMove := OnDrag;
+  neuImage.OnMouseUp := onEndDrag;
   iMax := 30;
   for i := pIndex to self.FImages.Count-1 do
   begin
@@ -160,7 +228,9 @@ begin
     sleep(5);
     inc(i);
   end;
-  altImage.Free;;
+  altImage.Free;
+  self.FSelectedImage := nil;
+  outputdebugstring('Freigegeben');
 end;
 
 function TForm1.MoveImageWhenDelete(i, iMax: Integer; n: Integer; distance: Integer): Boolean;
