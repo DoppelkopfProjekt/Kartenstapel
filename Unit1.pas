@@ -280,7 +280,7 @@ end;
 procedure TForm1.MoveImage(x: Integer; n: Integer);
 var actualImage, previousImage: TImage;
     factor: double;
-    place, difference, temp: Integer;
+    place, difference, temp, rounded: Integer;
 begin
   x := round(x * 1);
   if (n >= 1) then
@@ -291,12 +291,12 @@ begin
     factor := 0;
     if x <= 0 then
     begin
-      factor := 0.25;
+      factor := 0.5;
       place := minVisible;
     end;
     if x > 0  then
     begin
-      factor := 0.25;
+      factor := 0.5;
       place := maxVisible;
     end;
     if ((abs(actualImage.Left - previousImage.Left) < place) and (x > 0)) or
@@ -306,17 +306,27 @@ begin
       if ((actualImage.Left + x - previousImage.Left) > place) and (x > 0) then
       begin
         temp := maxVisible - actualImage.Left + previousImage.Left;
-        difference := -abs(temp-x);
+        difference := -abs(x-temp);
         x := temp;
       end;
       if ((actualImage.Left + x - previousImage.Left) < place) and (x < 0) then
       begin
         temp := minVisible - actualImage.Left + previousImage.Left;
-        difference := abs(temp-x);
+        difference := abs(x-temp-x);
         x := temp;
       end;
       TImage(self.FImages[n]).Left := TImage(self.FImages[n]).Left + x;
-      self.MoveImage(round(factor*x+difference), n-1);
+      if self.CanMoveImage(x, n-1) then
+      begin
+        if x < 0 then
+        begin
+          rounded := ceil(factor*x+difference);
+        end else
+        begin
+          rounded := floor(factor*x+difference);
+        end;
+        self.MoveImage(rounded, n-1);
+      end;
     end else
     begin
       if self.CanMoveImage(x, n-1) then
