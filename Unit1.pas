@@ -54,7 +54,7 @@ implementation
 const minVisible = 20;
       maxVisible = 65;
 
-function TForm1.logarithmAnimation(x: Integer; distance: Integer; xMax: Integer): Integer;
+function TForm1.logarithmAnimation(x: Integer; distance: Integer; xMax: Integer): double;
 begin
   result := distance/ln(xMax+1)*ln(x+1);
 end;
@@ -146,7 +146,7 @@ end;
 
 procedure TForm1.SelectImage(Sender: TObject);
 var
-  i: Integer;
+  i, distance, iMax: Integer;
   image: TImage;
 begin
   if not self.FIsDragging then
@@ -155,20 +155,27 @@ begin
   sndPlaySound(pChar('Sound.wav'),SND_ASYNC);
   self.FWirdGelegt := false;
   image := TImage(sender);
-  for i := 1 to 30 do
+  iMax := 30;
+  distance := 30;
+  image.Tag := image.Top;
+  if self.FSelectedImage <> nil then
+  begin
+    self.FSelectedImage.Tag := self.FSelectedImage.Top;
+  end;
+  for i := 1 to iMax do
   begin
     if not self.FWirdGelegt then
     begin
       if sender <> self.FSelectedImage then
       begin
-        image.Top := image.Top - 1;
+        image.Top := image.Tag - round(self.logarithmAnimation(i, distance, iMax));
       end;
     end;
       if self.FSelectedImage <> nil then
       begin
-        self.FSelectedImage.Top := self.FSelectedImage.Top + 1;
+        self.FSelectedImage.Top := self.FSelectedImage.tag + round(self.logarithmAnimation(i, distance, iMax));
       end;
-      sleep(8);
+      sleep(5);
       application.ProcessMessages;
   end;
   if not self.FWirdGelegt and (sender <> self.FSelectedImage) then
