@@ -201,10 +201,11 @@ end;
 
 procedure TForm1.deletePicture(pIndex: Integer);
 var i, k, iMax, kMax, distance, startTop: Integer;
-    altImage, neuImage, tempImage: TImage;
+    altImage, neuImage, tempImage, destinationImage: TImage;
     entfernenBildFertig, verschiebenBilderFertig: Boolean;
     a, b, c, temp: double;
 begin
+  destinationImage := stich1;
   altImage := TImage(self.FImages[pIndex]);
   altImage.Cursor := crHandPoint;
   altImage.OnMouseDown := nil;
@@ -252,9 +253,9 @@ begin
   end;
   startTop := altImage.Top;
   altImage.Tag := altImage.Top;
-  kMax := (stich1.Left - altImage.Left);
-  a := (-5*stich1.Height-stich1.Top - altImage.Top)/power(kMax, 2);
-  b := (stich1.top - altImage.top - a * power(kMax, 2))/kMax;
+  kMax := (destinationImage.Left - altImage.Left);
+  a := (-5*destinationImage.Height-destinationImage.Top - altImage.Top)/power(kMax, 2);
+  b := (destinationImage.top - altImage.top - a * power(kMax, 2))/kMax;
   c := altImage.top;
   while not entfernenBildFertig or not verschiebenBilderFertig do
   begin
@@ -262,10 +263,6 @@ begin
     altImage.Top := altImage.Tag - round(a * k*k + b*k + c)+ round(temp*10);
     altImage.Left := altImage.Left + 12;
     inc(k, 12);
-  (*  if (k <= kMax+6) and (k > kMax) then
-    begin
-      k := kMax;
-    end;  *)
     if k > kMax then
     begin
       entfernenBildFertig := true;
@@ -278,7 +275,7 @@ begin
     sleep(4);
     inc(i);
   end;
-  stich1.Picture.Assign(altImage.Picture);
+  destinationImage.Picture.Assign(altImage.Picture);
   altImage.Free;
   self.FSelectedImage := nil;
 end;
