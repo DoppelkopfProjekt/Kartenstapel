@@ -260,8 +260,8 @@ begin
   begin
     temp := k/kMax;
     altImage.Top := altImage.Tag - round(a * k*k + b*k + c)+ round(temp*10);
-    altImage.Left := altImage.Left + 9;
-    inc(k, 9);
+    altImage.Left := altImage.Left + 12;
+    inc(k, 12);
   (*  if (k <= kMax+6) and (k > kMax) then
     begin
       k := kMax;
@@ -275,7 +275,7 @@ begin
       verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
     end;
     application.ProcessMessages;
-    sleep(8);
+    sleep(4);
     inc(i);
   end;
   stich1.Picture.Assign(altImage.Picture);
