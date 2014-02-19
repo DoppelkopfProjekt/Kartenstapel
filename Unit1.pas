@@ -28,6 +28,7 @@ type
     procedure setupKartenStapel(LegeKarteHandler: TNotifyEvent);
     procedure MoveImage(x: Integer; n: Integer);
     procedure LegeKarte(Sender: TObject);
+    function logarithmAnimation(x, distance, xMax: Integer): double;
     //True wenn fertig
     function MoveImageWhenDelete(i, iMax: Integer; n: Integer; distance: Integer): Boolean;
     function CanMoveImage(x, n: Integer): Boolean; 
@@ -52,6 +53,11 @@ implementation
 
 const minVisible = 20;
       maxVisible = 65;
+
+function TForm1.logarithmAnimation(x: Integer; distance: Integer; xMax: Integer): Integer;
+begin
+  result := distance/ln(xMax+1)*ln(x+1);
+end;
 
 procedure TForm1.setupKartenStapel(LegeKarteHandler: TNotifyEvent);
 var i: Integer;
@@ -251,7 +257,7 @@ begin
   currentDistance := tempImage.tag - tempImage.left;
   if currentDistance < distance then
   begin
-    tempImage.Left := tempImage.Tag - round(distance/ln(iMax+1)*ln(i+1));
+    tempImage.Left := tempImage.Tag - round(self.logarithmAnimation(i, distance, iMax));
     temp := true;
   end;
   currentDistance := tempImage.tag - tempImage.left;
