@@ -26,6 +26,8 @@ type
     FWirdGelegt: Boolean;
     FLastMovement: Integer;
     FAbklingenTimer: TTimer;
+   // FOldImageTop: Integer;
+    FIsReallyDragging: Boolean;
     procedure setupKartenStapel(LegeKarteHandler: TNotifyEvent);
     procedure MoveImage(x: Integer; n: Integer);
     procedure LegeKarte(Sender: TObject);
@@ -84,6 +86,7 @@ begin
 
   posX := 25;
   FIsDragging := False;
+  self.FIsReallyDragging := False;
 
   for i := 0 to 9 do
   begin
@@ -123,7 +126,7 @@ end;
 procedure TForm1.LegeKarte(Sender: TObject);
 var index: integer;
 begin
-  if not self.FIsDragging then
+  if not self.FIsReallyDragging then
   begin
     index := self.FImages.IndexOf(sender);
     self.FWirdGelegt := true;
@@ -155,12 +158,13 @@ var
   i, distance, iMax: Integer;
   image: TImage;
 begin
-  if not self.FIsDragging then
+  if not self.FIsReallyDragging then
   begin
   FTest := getTickCount;
   sndPlaySound(pChar('Sound.wav'),SND_ASYNC);
   self.FWirdGelegt := false;
   image := TImage(sender);
+  //self.FOldImageTop := image.top;
   iMax := 30;
   distance := 30;
   image.Tag := image.Top;
@@ -196,9 +200,10 @@ begin
 end;
 
 procedure TForm1.deletePicture(pIndex: Integer);
-var i, iMax, distance: Integer;
+var i, k, iMax, kMax, distance, startTop: Integer;
     altImage, neuImage, tempImage: TImage;
     entfernenBildFertig, verschiebenBilderFertig: Boolean;
+    a, b, c, temp: double;
 begin
   altImage := TImage(self.FImages[pIndex]);
   altImage.Cursor := crHandPoint;
@@ -229,6 +234,7 @@ begin
     tempImage.tag := tempImage.left;
   end;
   i := 1;
+  k := 0;
   entfernenBildFertig := false;
   verschiebenBilderFertig := false;
   //Alte Position in Tag speichern, wird später gebraucht. Durch den Tag kann man auf ein Array verzichten
@@ -237,19 +243,32 @@ begin
     NeuImage := TImage(self.FImages[pIndex]);
     NeuImage.Tag := neuImage.Left;
   end;
+  startTop := altImage.Top;
+  altImage.Tag := altImage.Top;
+  kMax := (stich1.Left - altImage.Left);
+  a := (-5*stich1.Height-stich1.Top - altImage.Top)/power(kMax, 2);
+  b := (stich1.top - altImage.top - a * power(kMax, 2))/kMax;
+  c := altImage.top;
   while not entfernenBildFertig or not verschiebenBilderFertig do
   begin
-    altImage.Top := altImage.Top - 7;
-    altImage.Left := altImage.Left + 1;
-    if altImage.Top + altImage.Height <= 0 then
+    temp := k/kMax;
+    altImage.Top := altImage.Tag - round(a * k*k + b*k + c)+ round(temp*10);
+    altImage.Left := altImage.Left + 9;
+    inc(k, 9);
+  (*  if (k <= kMax+6) and (k > kMax) then
+    begin
+      k := kMax;
+    end;  *)
+    if k > kMax then
     begin
       entfernenBildFertig := true;
     end;
     verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
     application.ProcessMessages;
-    sleep(5);
+    sleep(8);
     inc(i);
   end;
+  stich1.Picture.Assign(altImage.Picture);
   altImage.Free;
   self.FSelectedImage := nil;
 end;
@@ -338,6 +357,7 @@ begin
     getCursorPos(newPos);
     if abs(NewPos.X - FOldPos.X) >= 2 then
     begin
+      self.FIsReallyDragging := True;
       self.FAbklingenTimer.Enabled := false;
       self.FLastMovement := Newpos.X - FOldPos.X;
       self.MoveImage(NewPos.X - FOldPos.X, self.FImages.Count-1);
@@ -351,6 +371,7 @@ procedure TForm1.OnEndDrag(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   self.FIsDragging := False;
+  self.FIsReallyDragging := False;
 end;
 
 function TForm1.CanMoveImage(x, n: Integer): Boolean;
