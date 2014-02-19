@@ -26,6 +26,7 @@ type
     FWirdGelegt: Boolean;
     FLastMovement: Integer;
     FAbklingenTimer: TTimer;
+    FIsDeleting: Boolean;
    // FOldImageTop: Integer;
     FIsReallyDragging: Boolean;
     procedure setupKartenStapel(LegeKarteHandler: TNotifyEvent);
@@ -121,6 +122,7 @@ begin
   self.FAbklingenTimer.Interval := 45;
   self.FAbklingenTimer.Enabled := false;
   self.FAbklingenTimer.OnTimer := AbklingenLassen;
+  self.FIsDeleting := false;
 end;
 
 procedure TForm1.LegeKarte(Sender: TObject);
@@ -158,7 +160,7 @@ var
   i, distance, iMax: Integer;
   image: TImage;
 begin
-  if not self.FIsReallyDragging then
+  if not self.FIsReallyDragging and not self.FIsDeleting and (self.FImages.Count > 1) then
   begin
   FTest := getTickCount;
   sndPlaySound(pChar('Sound.wav'),SND_ASYNC);
@@ -205,6 +207,9 @@ var i, k, iMax, kMax, distance, startTop: Integer;
     entfernenBildFertig, verschiebenBilderFertig: Boolean;
     a, b, c, temp: double;
 begin
+if not self.FIsDeleting then
+begin
+  self.FIsDeleting := true;
   destinationImage := stich1;
   altImage := TImage(self.FImages[pIndex]);
   altImage.Cursor := crHandPoint;
@@ -255,12 +260,13 @@ begin
   altImage.Tag := altImage.Top;
   kMax := (destinationImage.Left - altImage.Left);
   a := (-5*destinationImage.Height-destinationImage.Top - altImage.Top)/power(kMax, 2);
+ // a := (-4*destinationImage.Height + 6 * altImage.Top + 2 * destinationImage.Top)/power(kMax, 2);
   b := (destinationImage.top - altImage.top - a * power(kMax, 2))/kMax;
   c := altImage.top;
   while not entfernenBildFertig or not verschiebenBilderFertig do
   begin
     temp := k/kMax;
-    altImage.Top := altImage.Tag - round(a * k*k + b*k + c)+ round(temp*10);
+    altImage.Top := altImage.Tag - round(a * k*k + b*k + c)(*+ round(temp*10)*);
     altImage.Left := altImage.Left + 12;
     inc(k, 12);
     if k > kMax then
@@ -278,6 +284,8 @@ begin
   destinationImage.Picture.Assign(altImage.Picture);
   altImage.Free;
   self.FSelectedImage := nil;
+  self.FIsDeleting := false;
+end;
 end;
 
 function TForm1.MoveImageWhenDelete(i, iMax: Integer; n: Integer; distance: Integer): Boolean;
