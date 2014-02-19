@@ -21,7 +21,6 @@ type
     FIsDragging: Boolean;
     FOldPos: TPoint;
     FSelectedImage: TImage;
-    FTempImage: TObject;
     FTest: Integer;
     FWirdGelegt: Boolean;
     procedure setupKartenStapel(LegeKarteHandler: TNotifyEvent);
@@ -105,7 +104,7 @@ begin
 end;
 
 procedure TForm1.LegeKarte(Sender: TObject);
-var index, i: integer;
+var index: integer;
 begin
   index := self.FImages.IndexOf(sender);
   self.FWirdGelegt := true;
