@@ -11,10 +11,11 @@ type
   //TLegeKarteHandler = TNotifyEvent(sender: TObject);
 
   TForm1 = class(TForm)
-    Button1: TButton;
-    Edit1: TEdit;
+    Stich1: TImage;
+    Stich4: TImage;
+    Stich2: TImage;
+    Stich3: TImage;
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
   private
     FImages: TObjectList;
     FNamen: TStringList;
@@ -87,8 +88,9 @@ begin
   for i := 0 to 9 do
   begin
     temp := TImage.Create(self);
-    temp.Height := round(105*1.5);
-    temp.Width := round(73*1.5);
+   // temp.Height := round(105*1.5);
+    temp.Width :=120;
+    temp.Height := round(temp.Width * 105.0/73);
     temp.Picture.LoadFromFile('Karten/' + FNamen[i] + '.jpg');
     temp.Visible := true;
     temp.Parent := self;
@@ -142,6 +144,10 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   self.setupKartenStapel(LegeKarte);
+  self.Stich1.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
+  self.Stich2.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
+  self.Stich3.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
+  self.Stich4.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
 end;
 
 procedure TForm1.SelectImage(Sender: TObject);
@@ -345,11 +351,6 @@ procedure TForm1.OnEndDrag(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   self.FIsDragging := False;
-end;
-
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  self.deletePicture(StrToInt(edit1.Text));
 end;
 
 function TForm1.CanMoveImage(x, n: Integer): Boolean;
