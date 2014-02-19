@@ -222,11 +222,14 @@ begin
   end;
   self.FNamen.Delete(pIndex);
   self.FImages.Delete(pIndex);
-  neuImage := TImage(self.FImages.Last);
-  neuImage.Cursor := crHandPoint;
-  neuImage.OnMouseDown := OnStartDrag;
-  neuImage.OnMouseMove := OnDrag;
-  neuImage.OnMouseUp := onEndDrag;
+  if self.FImages.Count > 0 then
+  begin
+    neuImage := TImage(self.FImages.Last);
+    neuImage.Cursor := crHandPoint;
+    neuImage.OnMouseDown := OnStartDrag;
+    neuImage.OnMouseMove := OnDrag;
+    neuImage.OnMouseUp := onEndDrag;
+  end;
   iMax := 30;
   for i := pIndex to self.FImages.Count-1 do
   begin
@@ -237,8 +240,12 @@ begin
   k := 0;
   entfernenBildFertig := false;
   verschiebenBilderFertig := false;
+  if self.FImages.Count = 0 then
+  begin
+    verschiebenBilderFertig := true;
+  end;
   //Alte Position in Tag speichern, wird später gebraucht. Durch den Tag kann man auf ein Array verzichten
-  if pIndex <= self.FImages.Count -1 then
+  if pIndex <= self.FImages.Count -2 then
   begin
     NeuImage := TImage(self.FImages[pIndex]);
     NeuImage.Tag := neuImage.Left;
@@ -263,7 +270,10 @@ begin
     begin
       entfernenBildFertig := true;
     end;
-    verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
+    if self.FImages.Count > 0 then
+    begin
+      verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
+    end;
     application.ProcessMessages;
     sleep(8);
     inc(i);
