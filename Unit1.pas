@@ -24,9 +24,6 @@ type
     FTest: Integer;
     FWirdGelegt: Boolean;
     FLastMovement: Integer;
-    FEndDragSpeicher: Integer;
-    FDragCounter: Integer;
-    FIsNextDrag: Boolean;
     FAbklingenTimer: TTimer;
     procedure setupKartenStapel(LegeKarteHandler: TNotifyEvent);
     procedure MoveImage(x: Integer; n: Integer);
@@ -108,12 +105,9 @@ begin
 
   self.FWirdGelegt := false;
   self.FLastMovement := 0;
-  self.FEndDragSpeicher := getTickCount;
-  self.FDragCounter := 0;
-  self.FIsNextDrag := false;
 
   self.FAbklingenTimer := TTimer.Create(self);
-  self.FAbklingenTimer.Interval := 50;
+  self.FAbklingenTimer.Interval := 45;
   self.FAbklingenTimer.Enabled := false;
   self.FAbklingenTimer.OnTimer := AbklingenLassen;
 end;
@@ -123,8 +117,8 @@ var index: integer;
 begin
   if not self.FIsDragging then
   begin
-  index := self.FImages.IndexOf(sender);
-  self.FWirdGelegt := true;
+    index := self.FImages.IndexOf(sender);
+    self.FWirdGelegt := true;
   if self.FSelectedImage <> nil then
   begin
     self.FSelectedImage.Top := TImage(self.FImages[(index+1) mod (self.FImages.Count)]).Top;
@@ -135,7 +129,6 @@ begin
     //Drag beenden
     self.OnEndDrag(sender, mbLeft, [], 0, 0);
   end;
-  outputDebugString('umgeschaltet');
   self.deletePicture(index);
   end;
 end;
@@ -155,25 +148,18 @@ begin
   FTest := getTickCount;
   sndPlaySound(pChar('Sound.wav'),SND_ASYNC);
   self.FWirdGelegt := false;
- // self.FTempImage := sender;
   image := TImage(sender);
-  if self.FSelectedImage <> nil then
-  begin
-    //self.FSelectedImage.Top := image.Top;
-  end;
   for i := 1 to 30 do
   begin
     if not self.FWirdGelegt then
     begin
       if sender <> self.FSelectedImage then
       begin
-        OutputDebugString('Scheiﬂe');
         image.Top := image.Top - 1;
       end;
     end;
       if self.FSelectedImage <> nil then
       begin
-        OutputDebugString('Scheiﬂe');
         self.FSelectedImage.Top := self.FSelectedImage.Top + 1;
       end;
       sleep(8);
@@ -247,7 +233,6 @@ begin
   end;
   altImage.Free;
   self.FSelectedImage := nil;
-  outputdebugstring('Freigegeben');
 end;
 
 function TForm1.MoveImageWhenDelete(i, iMax: Integer; n: Integer; distance: Integer): Boolean;
@@ -274,7 +259,7 @@ begin
   begin
     if n <= self.FImages.Count-2 then
     begin
-      newIndex :=  floor(Math.Power(Exp(1.0), (1*ln(iMax+1)/(2.0*distance)*distance)));
+      newIndex :=  floor(Exp(1*ln(iMax+1)/(2.0*distance)*distance));
       result := self.MoveImageWhenDelete(i-newIndex+1, iMax, n+1,distance);
     end else
     begin
@@ -297,19 +282,15 @@ procedure TForm1.OnStartDrag(Sender: TObject; Button: TMouseButton;
 begin
   self.FIsDragging := True;
   getCursorPos(FOldPos);
-  self.FDragCounter := 0;
-  OutputdebugString('Start drag');
 end;
 
 procedure TForm1.AbklingenLassen(Sender: TObject);
 var move, i: Integer;
     k, doubleMove: double;
 begin
-  //self.FIsDragging := False;
- // OutputdebugString('Stop Drag');
  //Bewegung abklingen lassen
  TTimer(sender).enabled := false;
- k := 0.08;
+ k := 0.09;
  move := self.FLastMovement;
  i := 1;
  while abs(move) > 0 do
@@ -323,7 +304,6 @@ begin
      move := ceil(doubleMove);
    end;
    inc(i);
-   OutputdebugString(PWideChar('Stop Drag ' + IntToStr(getTickCount)));
    self.MoveImage(move, self.FImages.Count-1);
    application.processMessages;
    sleep(10);
@@ -339,15 +319,10 @@ begin
     getCursorPos(newPos);
     if abs(NewPos.X - FOldPos.X) >= 2 then
     begin
-      inc(self.FDragCounter);
-      //if self.FDragCounter = 10 then
-      begin
-        self.FLastMovement := Newpos.X - FOldPos.X;
-      end;
       self.FAbklingenTimer.Enabled := false;
+      self.FLastMovement := Newpos.X - FOldPos.X;
       self.MoveImage(NewPos.X - FOldPos.X, self.FImages.Count-1);
       FOldPos := NewPos;
-      OutputdebugString(PWideChar('Moving: ' + IntToStr(getTickCount)));
       self.FAbklingenTimer.Enabled := true;
     end;
   end;
@@ -355,8 +330,6 @@ end;
 
 procedure TForm1.OnEndDrag(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
-var move, i: Integer;
-    k: double;
 begin
   self.FIsDragging := False;
 end;
