@@ -23,12 +23,18 @@ type
     FSelectedImage: TImage;
     FTest: Integer;
     FWirdGelegt: Boolean;
+    FLastMovement: Integer;
+    FEndDragSpeicher: Integer;
+    FDragCounter: Integer;
+    FIsNextDrag: Boolean;
+    FAbklingenTimer: TTimer;
     procedure setupKartenStapel(LegeKarteHandler: TNotifyEvent);
     procedure MoveImage(x: Integer; n: Integer);
     procedure LegeKarte(Sender: TObject);
     //True wenn fertig
     function MoveImageWhenDelete(i, iMax: Integer; n: Integer; distance: Integer): Boolean;
-    function CanMoveImage(x, n: Integer): Boolean;
+    function CanMoveImage(x, n: Integer): Boolean; 
+    procedure AbklingenLassen(Sender: TObject);
     procedure OnStartDrag(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
     procedure OnDrag(Sender: TObject; Shift: TShiftState; X,
@@ -101,11 +107,22 @@ begin
   temp.OnMouseUp := OnEndDrag;
 
   self.FWirdGelegt := false;
+  self.FLastMovement := 0;
+  self.FEndDragSpeicher := getTickCount;
+  self.FDragCounter := 0;
+  self.FIsNextDrag := false;
+
+  self.FAbklingenTimer := TTimer.Create(self);
+  self.FAbklingenTimer.Interval := 50;
+  self.FAbklingenTimer.Enabled := false;
+  self.FAbklingenTimer.OnTimer := AbklingenLassen;
 end;
 
 procedure TForm1.LegeKarte(Sender: TObject);
 var index: integer;
 begin
+  if not self.FIsDragging then
+  begin
   index := self.FImages.IndexOf(sender);
   self.FWirdGelegt := true;
   if self.FSelectedImage <> nil then
@@ -119,9 +136,8 @@ begin
     self.OnEndDrag(sender, mbLeft, [], 0, 0);
   end;
   outputDebugString('umgeschaltet');
-  //ShowMessage(IntToStr(getTickCount-self.FTest));
-  //ShowMessage('Lege Karte');
   self.deletePicture(index);
+  end;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -134,6 +150,8 @@ var
   i: Integer;
   image: TImage;
 begin
+  if not self.FIsDragging then
+  begin
   FTest := getTickCount;
   sndPlaySound(pChar('Sound.wav'),SND_ASYNC);
   self.FWirdGelegt := false;
@@ -169,7 +187,7 @@ begin
     self.FSelectedImage := nil;
   end;
   self.FWirdGelegt := false;
-  //self.FHelpTimer.Enabled := true;
+  end;
 end;
 
 procedure TForm1.deletePicture(pIndex: Integer);
@@ -279,7 +297,37 @@ procedure TForm1.OnStartDrag(Sender: TObject; Button: TMouseButton;
 begin
   self.FIsDragging := True;
   getCursorPos(FOldPos);
+  self.FDragCounter := 0;
   OutputdebugString('Start drag');
+end;
+
+procedure TForm1.AbklingenLassen(Sender: TObject);
+var move, i: Integer;
+    k, doubleMove: double;
+begin
+  //self.FIsDragging := False;
+ // OutputdebugString('Stop Drag');
+ //Bewegung abklingen lassen
+ TTimer(sender).enabled := false;
+ k := 0.08;
+ move := self.FLastMovement;
+ i := 1;
+ while abs(move) > 0 do
+ begin
+   doubleMove := (self.FLastMovement * EXP(-k*i));
+   if doubleMove > 0 then
+   begin
+     move := floor(doubleMove);
+   end else
+   begin
+     move := ceil(doubleMove);
+   end;
+   inc(i);
+   OutputdebugString(PWideChar('Stop Drag ' + IntToStr(getTickCount)));
+   self.MoveImage(move, self.FImages.Count-1);
+   application.processMessages;
+   sleep(10);
+ end;
 end;
 
 procedure TForm1.OnDrag(Sender: TObject; Shift: TShiftState; X,
@@ -291,18 +339,26 @@ begin
     getCursorPos(newPos);
     if abs(NewPos.X - FOldPos.X) >= 2 then
     begin
-      OutputdebugString('Moving');
+      inc(self.FDragCounter);
+      //if self.FDragCounter = 10 then
+      begin
+        self.FLastMovement := Newpos.X - FOldPos.X;
+      end;
+      self.FAbklingenTimer.Enabled := false;
       self.MoveImage(NewPos.X - FOldPos.X, self.FImages.Count-1);
       FOldPos := NewPos;
+      OutputdebugString(PWideChar('Moving: ' + IntToStr(getTickCount)));
+      self.FAbklingenTimer.Enabled := true;
     end;
   end;
 end;
 
 procedure TForm1.OnEndDrag(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
+var move, i: Integer;
+    k: double;
 begin
   self.FIsDragging := False;
-  OutputdebugString('Stop Drag');
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
