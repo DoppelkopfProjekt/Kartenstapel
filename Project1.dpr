@@ -9,7 +9,9 @@ uses
 
 begin
   Application.Initialize;
-  Application.MainFormOnTaskbar := True;
+  {$IFDEF VER230}
+   Application.MainFormOnTaskbar := True;
+  {$ENDIF}
   Application.CreateForm(TForm1, Form1);
   Application.Run;
 end.
