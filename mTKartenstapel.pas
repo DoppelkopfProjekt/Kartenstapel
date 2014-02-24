@@ -12,6 +12,9 @@ type
 
   TKartenstapel = class(TObject)
   private
+    FTop: Integer;
+    FLeft: Integer;
+
     FLegeKarteHandler: TLegeKarteHandler;
     FImages: TObjectList;
     FNamen: TStringList;
@@ -43,9 +46,9 @@ type
     procedure OnEndDrag(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
     procedure SelectImage(Sender: TObject);
-  public
     procedure deletePicture(pIndex: Integer; destinationImage: TImage);
-    constructor Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler);
+  public
+    constructor Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler; left, top: Integer);
     procedure setKarten(pKarten: TStringList; Animate: Boolean);
     property backCardName: string read FBackCardName write FBackCardName;
   end;
@@ -72,7 +75,7 @@ begin
   FImages.OwnsObjects := False;
   self.FIsSelecting := false;
 
-  posX := 25;
+  posX := self.FLeft;
   FIsDragging := False;
   self.FIsReallyDragging := False;
 
@@ -87,7 +90,7 @@ begin
     temp.Parent := self.FParentForm;
     temp.Stretch := true;
     temp.Left := posX;
-    temp.Top := 40;
+    temp.Top := self.FTop;
     temp.OnClick := SelectImage;
     posX := posX + round((1/3) * temp.Width);
     FImages.Add(temp);
@@ -135,11 +138,13 @@ begin
   end;
 end;
 
-constructor TKartenstapel.Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler);
+constructor TKartenstapel.Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler; left, top: Integer);
 begin
   self.FParentForm := pParentForm;
   self.FParentForm.DoubleBuffered := true;
   self.FLegeKarteHandler := pLegeKarteHandler;
+  self.FTop := top;
+  self.FLeft := left;
 end;
 
 procedure TKartenstapel.SelectImage(Sender: TObject);
@@ -154,7 +159,6 @@ begin
   sndPlaySound(pChar('Sound.wav'), SND_ASYNC);
   self.FWirdGelegt := false;
   image := TImage(sender);
-  //self.FOldImageTop := image.top;
   iMax := 30;
   distance := 30;
   image.Tag := image.Top;

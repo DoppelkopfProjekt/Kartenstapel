@@ -36,7 +36,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 var Namen: TSTringList;
 begin
-  self.FKartenStapel := TKartenstapel.Create(self, shouldDeletePicture);
+  self.FKartenStapel := TKartenstapel.Create(self, shouldDeletePicture, 25, 40);
   Namen := TStringList.Create;
   Namen.Add('HE10');
   Namen.Add('KR10');
