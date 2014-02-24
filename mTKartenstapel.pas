@@ -29,6 +29,7 @@ type
     FAbklingenTimer: TTimer;
     FIsDeleting: Boolean;
     FBackCardName: string;
+    FIsSelecting: Boolean;
    // FOldImageTop: Integer;
     FIsReallyDragging: Boolean;
     FParentForm: TForm;
@@ -74,6 +75,7 @@ begin
   self.FSelectedImage := nil;
   FImages := TObjectList.Create;
   FImages.OwnsObjects := False;
+  self.FIsSelecting := false;
 
   posX := 25;
   FIsDragging := False;
@@ -164,6 +166,7 @@ var
 begin
   if not self.FIsReallyDragging and not self.FIsDeleting and (self.FImages.Count > 1) then
   begin
+  self.FIsSelecting := true;
   FTest := getTickCount;
   sndPlaySound(pChar('Sound.wav'), SND_ASYNC);
   self.FWirdGelegt := false;
@@ -192,6 +195,7 @@ begin
       sleep(5);
       application.ProcessMessages;
   end;
+  self.FIsSelecting := false;
   if not self.FWirdGelegt and (sender <> self.FSelectedImage) then
   begin
     self.FSelectedImage := image;
@@ -369,7 +373,7 @@ procedure TKartenstapel.OnDrag(Sender: TObject; Shift: TShiftState; X,
   Y: Integer);
 var NewPos: TPoint;
 begin
-  if self.FIsDragging then
+  if self.FIsDragging and not self.FIsSelecting then
   begin
     getCursorPos(newPos);
     if abs(NewPos.X - FOldPos.X) >= 2 then
