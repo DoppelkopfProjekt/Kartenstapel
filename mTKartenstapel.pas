@@ -14,6 +14,10 @@ type
   private
     FTop: Integer;
     FLeft: Integer;
+    FWidth: Integer;
+    FHeight: Integer;
+    FMinVisiblePixel: Integer;
+    FMaxVisiblePixel: Integer;
 
     FLegeKarteHandler: TLegeKarteHandler;
     FImages: TObjectList;
@@ -48,15 +52,15 @@ type
     procedure SelectImage(Sender: TObject);
     procedure deletePicture(pIndex: Integer; destinationImage: TImage);
   public
-    constructor Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler; left, top: Integer);
+    constructor Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler; left, top, width, height: Integer);
     procedure setKarten(pKarten: TStringList; Animate: Boolean);
     property backCardName: string read FBackCardName write FBackCardName;
   end;
 
 implementation
 
-const minVisible = 20;
-      maxVisible = 65;
+const minVisibleRelation = 1.0/6.0;
+      maxVisibleRelation = 0.4;
 
 function TKartenstapel.logarithmAnimation(x: Integer; distance: Integer; xMax: Integer): double;
 begin
@@ -79,12 +83,16 @@ begin
   FIsDragging := False;
   self.FIsReallyDragging := False;
 
+  self.FMinVisiblePixel := round(self.FWidth * minVisibleRelation);
+  self.FMaxVisiblePixel := round(self.FHeight * maxVisibleRelation);
+
   for i := 0 to 9 do
   begin
     temp := TImage.Create(self.FParentForm);
    // temp.Height := round(105*1.5);
-    temp.Width :=120;
-    temp.Height := round(temp.Width * 105.0/73);
+    temp.Width :=self.FWidth;
+    //temp.Height := round(temp.Width * 105.0/73);
+    temp.Height := self.FHeight;
     temp.Picture.LoadFromFile('Karten/' + FNamen[i] + '.jpg');
    // temp.Visible := true;
     temp.Parent := self.FParentForm;
@@ -138,13 +146,15 @@ begin
   end;
 end;
 
-constructor TKartenstapel.Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler; left, top: Integer);
+constructor TKartenstapel.Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler; left, top, width, height: Integer);
 begin
   self.FParentForm := pParentForm;
   self.FParentForm.DoubleBuffered := true;
   self.FLegeKarteHandler := pLegeKarteHandler;
   self.FTop := top;
   self.FLeft := left;
+  self.FHeight := height;
+  self.FWidth := width;
 end;
 
 procedure TKartenstapel.SelectImage(Sender: TObject);
@@ -400,11 +410,11 @@ begin
           place := 0;
           if x <= 0 then
           begin
-           place := minVisible;
+           place := self.FMinVisiblePixel;
           end;
           if x > 0  then
           begin
-            place := maxVisible;
+            place := self.FMaxVisiblePixel;
           end;
           result := ((abs(actualImage.Left - previousImage.Left) < place) and (x > 0)) or
              ((abs(actualImage.Left - previousImage.Left) > place) and (x < 0)) or
@@ -432,12 +442,12 @@ begin
     if x <= 0 then
     begin
       factor := 0.5;
-      place := minVisible;
+      place := self.FMinVisiblePixel;
     end;
     if x > 0  then
     begin
       factor := 0.5;
-      place := maxVisible;
+      place := self.FMaxVisiblePixel;
     end;
     if ((abs(actualImage.Left - previousImage.Left) < place) and (x > 0)) or
       ((abs(actualImage.Left - previousImage.Left) > place) and (x < 0)) then
@@ -445,13 +455,13 @@ begin
       difference := 0;
       if ((actualImage.Left + x - previousImage.Left) > place) and (x > 0) then
       begin
-        temp := maxVisible - actualImage.Left + previousImage.Left;
+        temp := self.FMaxVisiblePixel - actualImage.Left + previousImage.Left;
         difference := -abs(x-temp);
         x := temp;
       end;
       if ((actualImage.Left + x - previousImage.Left) < place) and (x < 0) then
       begin
-        temp := minVisible - actualImage.Left + previousImage.Left;
+        temp := self.FMinVisiblePixel - actualImage.Left + previousImage.Left;
         difference := abs(x-temp-x);
         x := temp;
       end;
@@ -474,11 +484,11 @@ begin
         self.MoveImage(x, n-1);
         if ((actualImage.Left + x - previousImage.Left) > place) and (x > 0) then
         begin
-          x := maxVisible - actualImage.Left + previousImage.Left;
+          x := self.FMaxVisiblePixel - actualImage.Left + previousImage.Left;
         end;
         if ((actualImage.Left + x - previousImage.Left) < place) and (x < 0) then
         begin
-          x := minVisible - actualImage.Left + previousImage.Left;
+          x := self.FMinVisiblePixel - actualImage.Left + previousImage.Left;
         end;
         TImage(self.FImages[n]).Left := TImage(self.FImages[n]).Left + x;
       end;

@@ -35,8 +35,10 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var Namen: TSTringList;
+    width: integer;
 begin
-  self.FKartenStapel := TKartenstapel.Create(self, shouldDeletePicture, 25, 40);
+  width := 160;
+  self.FKartenStapel := TKartenstapel.Create(self, shouldDeletePicture, 25, 40, width, round(width * (105.0/73)));
   Namen := TStringList.Create;
   Namen.Add('HE10');
   Namen.Add('KR10');
