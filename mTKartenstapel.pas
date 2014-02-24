@@ -32,10 +32,8 @@ type
     FIsDeleting: Boolean;
     FBackCardName: string;
     FIsSelecting: Boolean;
-   // FOldImageTop: Integer;
     FIsReallyDragging: Boolean;
     FParentForm: TForm;
-   // procedure setupKartenStapel(LegeKarteHandler: TNotifyEvent);
     procedure MoveImage(x: Integer; n: Integer);
     procedure LegeKarte(Sender: TObject);
     function logarithmAnimation(x, distance, xMax: Integer): double;
@@ -44,11 +42,11 @@ type
     function CanMoveImage(x, n: Integer): Boolean;
     procedure AbklingenLassen(Sender: TObject);
     procedure OnStartDrag(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+                          Shift: TShiftState; X, Y: Integer);
     procedure OnDrag(Sender: TObject; Shift: TShiftState; X,
-  Y: Integer);
+                     Y: Integer);
     procedure OnEndDrag(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+                        Shift: TShiftState; X, Y: Integer);
     procedure SelectImage(Sender: TObject);
     procedure deletePicture(pIndex: Integer; destinationImage: TImage);
   public
@@ -89,12 +87,9 @@ begin
   for i := 0 to 9 do
   begin
     temp := TImage.Create(self.FParentForm);
-   // temp.Height := round(105*1.5);
     temp.Width :=self.FWidth;
-    //temp.Height := round(temp.Width * 105.0/73);
     temp.Height := self.FHeight;
     temp.Picture.LoadFromFile('Karten/' + FNamen[i] + '.jpg');
-   // temp.Visible := true;
     temp.Parent := self.FParentForm;
     temp.Stretch := true;
     temp.Left := posX;
@@ -105,8 +100,6 @@ begin
     temp.OnDblClick := LegeKarte;
   end;
 
- // self.Width := posX + 25 + TImage(FImages[0]).width;
-  //self.Height := round(TImage(FImages[0]).height+100);
   temp := TImage(self.FImages[self.FImages.Count-1]);
   temp.cursor := crHandPoint;
   temp.OnMouseDown := OnStartDrag;

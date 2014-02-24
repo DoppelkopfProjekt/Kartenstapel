@@ -39,6 +39,7 @@ var Namen: TSTringList;
 begin
   width := 120;
   self.FKartenStapel := TKartenstapel.Create(self, shouldDeletePicture, 25, 40, width, round(width * (105.0/73)));
+
   Namen := TStringList.Create;
   Namen.Add('HE10');
   Namen.Add('KR10');
@@ -50,6 +51,7 @@ begin
   Namen.Add('KRB');
   Namen.Add('PIB');
   Namen.Add('HEB');
+
   self.FKartenstapel.setKarten(Namen, false);
 
   self.Stich1.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
