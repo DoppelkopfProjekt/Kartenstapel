@@ -13,7 +13,9 @@ type
     Stich4: TImage;
     Stich2: TImage;
     Stich3: TImage;
+    Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     FKartenstapel: TKartenstapel;
     function shouldDeletePicture(var destImage: TImage): Boolean;
@@ -33,13 +35,10 @@ begin
   result := true;
 end;
 
-procedure TForm1.FormCreate(Sender: TObject);
+procedure TForm1.Timer1Timer(Sender: TObject);
 var Namen: TSTringList;
-    width: integer;
 begin
-  width := 120;
-  self.FKartenStapel := TKartenstapel.Create(self, shouldDeletePicture, 25, 40, width, round(width * (105.0/73)));
-
+  self.Timer1.Enabled := false;
   Namen := TStringList.Create;
   Namen.Add('HE10');
   Namen.Add('KR10');
@@ -51,8 +50,15 @@ begin
   Namen.Add('KRB');
   Namen.Add('PIB');
   Namen.Add('HEB');
+  self.FKartenstapel.setKarten(Namen, true);
+end;
 
-  self.FKartenstapel.setKarten(Namen, false);
+procedure TForm1.FormCreate(Sender: TObject);
+var width: integer;
+begin
+  width := 120;
+  self.FKartenStapel := TKartenstapel.Create(self, shouldDeletePicture, 25, 40, width, round(width * (105.0/73)));
+  self.FKartenstapel.setBackCards;
 
   self.Stich1.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
   self.Stich2.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');

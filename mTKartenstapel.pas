@@ -52,6 +52,7 @@ type
   public
     constructor Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler; left, top, width, height: Integer);
     procedure setKarten(pKarten: TStringList; Animate: Boolean);
+    procedure setBackCards;
     property backCardName: string read FBackCardName write FBackCardName;
   end;
 
@@ -65,12 +66,56 @@ begin
   result := distance/ln(xMax+1)*ln(x+1);
 end;
 
+procedure TKartenstapel.setBackCards;
+var i, posX: Integer;
+    temp: TImage;
+begin
+  FImages := TObjectList.Create;
+    posX := self.FLeft;
+    for i := 0 to 9 do
+    begin
+    temp := TImage.Create(self.FParentForm);
+    temp.Width :=self.FWidth;
+    temp.Height := self.FHeight;
+    temp.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
+    temp.Parent := self.FParentForm;
+    temp.Stretch := true;
+    temp.Left := posX;
+    temp.Top := self.FTop;
+    //temp.OnClick := SelectImage;
+    posX := posX + round((1/3) * temp.Width);
+    FImages.Add(temp);
+   // temp.OnDblClick := LegeKarte;
+    end;
+end;
+
 procedure TKartenstapel.setKarten(pKarten: TStringList; Animate: Boolean);
-var i: Integer;
+var i, k: Integer;
     temp: TImage;
     posX: Integer;
 begin
   self.FNamen := pKarten;
+
+  FImages := TObjectList.Create;
+  if Animate then
+  begin
+    posX := self.FLeft;
+    for i := 0 to pKarten.Count-1 do
+    begin
+    temp := TImage.Create(self.FParentForm);
+    temp.Width :=self.FWidth;
+    temp.Height := self.FHeight;
+    temp.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
+    temp.Parent := self.FParentForm;
+    temp.Stretch := true;
+    temp.Left := posX;
+    temp.Top := self.FTop;
+    //temp.OnClick := SelectImage;
+    posX := posX + round((1/3) * temp.Width);
+    FImages.Add(temp);
+   // temp.OnDblClick := LegeKarte;
+    end;
+  end;
 
   self.FSelectedImage := nil;
   FImages := TObjectList.Create;
@@ -84,7 +129,7 @@ begin
   self.FMinVisiblePixel := round(self.FWidth * minVisibleRelation);
   self.FMaxVisiblePixel := round(self.FHeight * maxVisibleRelation);
 
-  for i := 0 to 9 do
+  for i := 0 to pKarten.Count-1 do
   begin
     temp := TImage.Create(self.FParentForm);
     temp.Width :=self.FWidth;
@@ -98,6 +143,12 @@ begin
     posX := posX + round((1/3) * temp.Width);
     FImages.Add(temp);
     temp.OnDblClick := LegeKarte;
+    if (Animate) then
+    for k := 1 to 10 do
+    begin
+      sleep(25);
+      application.ProcessMessages;
+    end;
   end;
 
   temp := TImage(self.FImages[self.FImages.Count-1]);

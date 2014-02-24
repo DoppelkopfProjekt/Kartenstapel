@@ -42,4 +42,10 @@ object Form1: TForm1
     Height = 173
     Stretch = True
   end
+  object Timer1: TTimer
+    Interval = 500
+    OnTimer = Timer1Timer
+    Left = 632
+    Top = 392
+  end
 end
