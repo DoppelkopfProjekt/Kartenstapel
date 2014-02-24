@@ -96,7 +96,7 @@ begin
     temp.Width :=120;
     temp.Height := round(temp.Width * 105.0/73);
     temp.Picture.LoadFromFile('Karten/' + FNamen[i] + '.jpg');
-    temp.Visible := true;
+   // temp.Visible := true;
     temp.Parent := self;
     temp.Stretch := true;
     temp.Left := posX;
