@@ -11,11 +11,6 @@ type
   TLegeKarteHandler = function(var destinationImage: TImage): Boolean of object;
 
   TKartenstapel = class(TObject)
-   // Stich1: TImage;
-   // Stich4: TImage;
-   // Stich2: TImage;
-   // Stich3: TImage;
-  //  procedure FormCreate(Sender: TObject);
   private
     FLegeKarteHandler: TLegeKarteHandler;
     FImages: TObjectList;
@@ -140,19 +135,7 @@ begin
   end;
 end;
 
-(*procedure TKartenstapel.FormCreate(Sender: TObject);
-begin
-  self.setupKartenStapel(LegeKarte);
-  self.Stich1.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
-  self.Stich2.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
-  self.Stich3.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
-  self.Stich4.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
-end;   *)
-
 constructor TKartenstapel.Create(pParentForm: TForm; pLegeKarteHandler: TLegeKarteHandler);
-var i: Integer;
-    temp: TImage;
-    posX: Integer;
 begin
   self.FParentForm := pParentForm;
   self.FParentForm.DoubleBuffered := true;
@@ -216,7 +199,6 @@ begin
 if not self.FIsDeleting then
 begin
   self.FIsDeleting := true;
-  //destinationImage := stich1;
   altImage := TImage(self.FImages[pIndex]);
   altImage.Cursor := crHandPoint;
   altImage.OnMouseDown := nil;
@@ -271,7 +253,7 @@ begin
   c := altImage.top;
   while not entfernenBildFertig or not verschiebenBilderFertig do
   begin
-    temp := k/kMax;
+    //temp := k/kMax;
     altImage.Top := altImage.Tag - round(a * k*k + b*k + c)(*+ round(temp*10)*);
     altImage.Left := altImage.Left + 12;
     inc(k, 12);
