@@ -5,10 +5,10 @@
 __history
 *.drc
 *.map
-*.exe
 *.dll
 bin/*
 *.~pas
 *.~dfm
 *.~dpr
 *.db
+*.vlb
