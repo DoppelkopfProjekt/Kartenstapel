@@ -164,43 +164,43 @@ var
 begin
   if not self.FIsReallyDragging and not self.FIsDeleting and (self.FImages.Count > 1) then
   begin
-  self.FIsSelecting := true;
-  FTest := getTickCount;
-  sndPlaySound(pChar('Sound.wav'), SND_ASYNC);
-  self.FWirdGelegt := false;
-  image := TImage(sender);
-  iMax := 30;
-  distance := 30;
-  image.Tag := image.Top;
-  if self.FSelectedImage <> nil then
-  begin
-    self.FSelectedImage.Tag := self.FSelectedImage.Top;
-  end;
-  for i := 1 to iMax do
-  begin
-    if not self.FWirdGelegt then
+    self.FIsSelecting := true;
+    FTest := getTickCount;
+    sndPlaySound(pChar('Sound.wav'), SND_ASYNC);
+    self.FWirdGelegt := false;
+    image := TImage(sender);
+    iMax := 30;
+    distance := 30;
+    image.Tag := image.Top;
+    if self.FSelectedImage <> nil then
     begin
-      if sender <> self.FSelectedImage then
-      begin
-        image.Top := image.Tag - round(self.logarithmAnimation(i, distance, iMax));
-      end;
+      self.FSelectedImage.Tag := self.FSelectedImage.Top;
     end;
+    for i := 1 to iMax do
+    begin
+      if not self.FWirdGelegt then
+      begin
+        if sender <> self.FSelectedImage then
+        begin
+          image.Top := image.Tag - round(self.logarithmAnimation(i, distance, iMax));
+        end;
+      end;
       if self.FSelectedImage <> nil then
       begin
         self.FSelectedImage.Top := self.FSelectedImage.tag + round(self.logarithmAnimation(i, distance, iMax));
       end;
       sleep(5);
       application.ProcessMessages;
-  end;
-  self.FIsSelecting := false;
-  if not self.FWirdGelegt and (sender <> self.FSelectedImage) then
-  begin
-    self.FSelectedImage := image;
-  end else
-  begin
-    self.FSelectedImage := nil;
-  end;
-  self.FWirdGelegt := false;
+    end;
+    self.FIsSelecting := false;
+    if not self.FWirdGelegt and (sender <> self.FSelectedImage) then
+    begin
+      self.FSelectedImage := image;
+    end else
+    begin
+      self.FSelectedImage := nil;
+    end;
+    self.FWirdGelegt := false;
   end;
 end;
 
@@ -210,84 +210,84 @@ var i, k, iMax, kMax, distance, startTop: Integer;
     entfernenBildFertig, verschiebenBilderFertig: Boolean;
     a, b, c, temp: double;
 begin
-if not self.FIsDeleting then
-begin
-  self.FIsDeleting := true;
-  altImage := TImage(self.FImages[pIndex]);
-  altImage.Cursor := crHandPoint;
-  altImage.OnMouseDown := nil;
-  altImage.OnMouseMove := nil;
-  altImage.OnMouseUp := nil;
-  // Alte und neue Karte animieren
+  if not self.FIsDeleting then
+  begin
+    self.FIsDeleting := true;
+    altImage := TImage(self.FImages[pIndex]);
+    altImage.Cursor := crHandPoint;
+    altImage.OnMouseDown := nil;
+    altImage.OnMouseMove := nil;
+    altImage.OnMouseUp := nil;
+    // Alte und neue Karte animieren
 
-  if pIndex = self.FImages.Count-1 then
-  begin
-    distance := 0;
-  end else
-  begin
-    neuImage := TImage(self.FImages[pIndex+1]);
-    distance := neuImage.Left - altImage.Left;
-  end;
-  self.FNamen.Delete(pIndex);
-  self.FImages.Delete(pIndex);
-  if self.FImages.Count > 0 then
-  begin
-    neuImage := TImage(self.FImages.Last);
-    neuImage.Cursor := crHandPoint;
-    neuImage.OnMouseDown := OnStartDrag;
-    neuImage.OnMouseMove := OnDrag;
-    neuImage.OnMouseUp := onEndDrag;
-  end;
-  iMax := 30;
-  for i := pIndex to self.FImages.Count-1 do
-  begin
-    tempImage := TImage(self.FImages[i]);
-    tempImage.tag := tempImage.left;
-  end;
-  i := 1;
-  k := 0;
-  entfernenBildFertig := false;
-  verschiebenBilderFertig := false;
-  if self.FImages.Count = 0 then
-  begin
-    verschiebenBilderFertig := true;
-  end;
-  //Alte Position in Tag speichern, wird später gebraucht. Durch den Tag kann man auf ein Array verzichten
-  if pIndex <= self.FImages.Count -2 then
-  begin
-    NeuImage := TImage(self.FImages[pIndex]);
-    NeuImage.Tag := neuImage.Left;
-  end;
-  startTop := altImage.Top;
-  altImage.Tag := altImage.Top;
-  kMax := (destinationImage.Left - altImage.Left);
-  a := (-5*destinationImage.Height-destinationImage.Top - altImage.Top)/power(kMax, 2);
- // a := (-4*destinationImage.Height + 6 * altImage.Top + 2 * destinationImage.Top)/power(kMax, 2);
-  b := (destinationImage.top - altImage.top - a * power(kMax, 2))/kMax;
-  c := altImage.top;
-  while not entfernenBildFertig or not verschiebenBilderFertig do
-  begin
-    //temp := k/kMax;
-    altImage.Top := altImage.Tag - round(a * k*k + b*k + c)(*+ round(temp*10)*);
-    altImage.Left := altImage.Left + 12;
-    inc(k, 12);
-    if k > kMax then
+    if pIndex = self.FImages.Count-1 then
     begin
-      entfernenBildFertig := true;
+      distance := 0;
+    end else
+    begin
+      neuImage := TImage(self.FImages[pIndex+1]);
+      distance := neuImage.Left - altImage.Left;
     end;
+    self.FNamen.Delete(pIndex);
+    self.FImages.Delete(pIndex);
     if self.FImages.Count > 0 then
     begin
-      verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
+      neuImage := TImage(self.FImages.Last);
+      neuImage.Cursor := crHandPoint;
+      neuImage.OnMouseDown := OnStartDrag;
+      neuImage.OnMouseMove := OnDrag;
+      neuImage.OnMouseUp := onEndDrag;
     end;
-    application.ProcessMessages;
-    sleep(4);
-    inc(i);
+    iMax := 30;
+    for i := pIndex to self.FImages.Count-1 do
+    begin
+      tempImage := TImage(self.FImages[i]);
+      tempImage.tag := tempImage.left;
+    end;
+    i := 1;
+    k := 0;
+    entfernenBildFertig := false;
+    verschiebenBilderFertig := false;
+    if self.FImages.Count = 0 then
+    begin
+      verschiebenBilderFertig := true;
+    end;
+    //Alte Position in Tag speichern, wird später gebraucht. Durch den Tag kann man auf ein Array verzichten
+    if pIndex <= self.FImages.Count -2 then
+    begin
+      NeuImage := TImage(self.FImages[pIndex]);
+      NeuImage.Tag := neuImage.Left;
+    end;
+    startTop := altImage.Top;
+    altImage.Tag := altImage.Top;
+    kMax := (destinationImage.Left - altImage.Left);
+    a := (-5*destinationImage.Height-destinationImage.Top - altImage.Top)/power(kMax, 2);
+    // a := (-4*destinationImage.Height + 6 * altImage.Top + 2 * destinationImage.Top)/power(kMax, 2);
+    b := (destinationImage.top - altImage.top - a * power(kMax, 2))/kMax;
+    c := altImage.top;
+    while not entfernenBildFertig or not verschiebenBilderFertig do
+    begin
+      //temp := k/kMax;
+      altImage.Top := altImage.Tag - round(a * k*k + b*k + c)(*+ round(temp*10)*);
+      altImage.Left := altImage.Left + 12;
+      inc(k, 12);
+      if k > kMax then
+      begin
+        entfernenBildFertig := true;
+      end;
+      if self.FImages.Count > 0 then
+      begin
+        verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
+      end;
+      application.ProcessMessages;
+      sleep(4);
+      inc(i);
+    end;
+    destinationImage.Picture.Assign(altImage.Picture);
+    altImage.Free;
+    self.FSelectedImage := nil;
+    self.FIsDeleting := false;
   end;
-  destinationImage.Picture.Assign(altImage.Picture);
-  altImage.Free;
-  self.FSelectedImage := nil;
-  self.FIsDeleting := false;
-end;
 end;
 
 function TKartenstapel.MoveImageWhenDelete(i, iMax: Integer; n: Integer; distance: Integer): Boolean;
