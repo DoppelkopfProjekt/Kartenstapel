@@ -97,7 +97,7 @@ begin
   self.FNamen := pKarten;
 
   FImages := TObjectList.Create;
-  if Animate then
+ (* if Animate then
   begin
     posX := self.FLeft;
     for i := 0 to pKarten.Count-1 do
@@ -115,7 +115,8 @@ begin
     FImages.Add(temp);
    // temp.OnDblClick := LegeKarte;
     end;
-  end;
+  end;  *)
+
 
   self.FSelectedImage := nil;
   FImages := TObjectList.Create;
@@ -146,7 +147,7 @@ begin
     if (Animate) then
     for k := 1 to 10 do
     begin
-      sleep(25);
+     // sleep(25);
       application.ProcessMessages;
     end;
   end;
@@ -253,6 +254,8 @@ var i, k, iMax, kMax, distance, startTop: Integer;
     altImage, neuImage, tempImage(*, destinationImage*): TImage;
     entfernenBildFertig, verschiebenBilderFertig: Boolean;
     a, b, c, temp: double;
+    x1, x2, x3, y1, y2, y3: double;
+    z1, z2: double;
 begin
   if not self.FIsDeleting then
   begin
@@ -304,27 +307,40 @@ begin
     end;
     startTop := altImage.Top;
     altImage.Tag := altImage.Top;
-    kMax := (destinationImage.Left - altImage.Left);
-    a := (-5*destinationImage.Height-destinationImage.Top - altImage.Top)/power(kMax, 2);
-    // a := (-4*destinationImage.Height + 6 * altImage.Top + 2 * destinationImage.Top)/power(kMax, 2);
-    b := (destinationImage.top - altImage.top - a * power(kMax, 2))/kMax;
-    c := altImage.top;
+    kMax := abs(destinationImage.Left - altImage.Left);
+
+
+    x1 := altImage.Left;
+    x2 := destinationImage.Left;
+    x3 := abs(x3-x1) / 2;
+    y1 := altImage.Top;
+    y2 := destinationImage.Top;
+   // y2 := -altImage.Height;
+    y3 := 200;
+
+    a := y1;
+    b := (y2-y1)/(x2-x1);
+    c := ((y3-y2)/(x3-x2)- (y2-y1)/(x2-x1))/(x3-x1);
+
+   (* if a < 0 then a := -a;
+    if b > 0 then b := -b;
+    if c < 0 then c := -c;  *)
+
     while not entfernenBildFertig or not verschiebenBilderFertig do
     begin
-      //temp := k/kMax;
-      altImage.Top := altImage.Tag - round(a * k*k + b*k + c)(*+ round(temp*10)*);
-      altImage.Left := altImage.Left + 12;
-      inc(k, 12);
+      altImage.Top := round(a + b*(altImage.Left-x1) + c*(altImage.Left-x1)*(altImage.Left-x2));
+      altImage.Left := altImage.Left + 1;
+      inc(k, 1);
       if k > kMax then
       begin
         entfernenBildFertig := true;
       end;
-      if self.FImages.Count > 0 then
+      if self.FImages.Count > 1 then
       begin
         verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
       end;
       application.ProcessMessages;
-      sleep(4);
+      sleep(5);
       inc(i);
     end;
     destinationImage.Picture.Assign(altImage.Picture);

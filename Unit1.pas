@@ -30,7 +30,7 @@ implementation
 
 function TForm1.shouldDeletePicture(var destImage: TImage): Boolean;
 begin
-  destImage := stich1;
+  destImage := stich4;
   sleep(100);
   result := true;
 end;
@@ -58,7 +58,7 @@ var width: integer;
 begin
   width := 120;
   self.FKartenStapel := TKartenstapel.Create(self, shouldDeletePicture, 25, 40, width, round(width * (105.0/73)));
-  self.FKartenstapel.setBackCards;
+  //self.FKartenstapel.setBackCards;
 
   self.Stich1.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
   self.Stich2.Picture.LoadFromFile('Karten/' + 'Back' + '.jpg');
