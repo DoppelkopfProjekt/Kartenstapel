@@ -328,7 +328,7 @@ begin
     if b > 0 then b := -b;
     if c < 0 then c := -c;  *)
 
-    stepWidth := 6;
+    stepWidth := 9;
 
     while not entfernenBildFertig or not verschiebenBilderFertig do
     begin
@@ -355,7 +355,7 @@ begin
         verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
       end;
       application.ProcessMessages;
-      sleep(1);
+      sleep(4);
       inc(i);
     end;
     destinationImage.Picture.Assign(altImage.Picture);
