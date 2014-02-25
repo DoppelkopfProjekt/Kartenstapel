@@ -256,6 +256,7 @@ var i, k, iMax, kMax, distance, startTop: Integer;
     a, b, c, temp: double;
     x1, x2, x3, y1, y2, y3: double;
     z1, z2: double;
+    stepWidth: Integer;
 begin
   if not self.FIsDeleting then
   begin
@@ -327,17 +328,27 @@ begin
     if b > 0 then b := -b;
     if c < 0 then c := -c;  *)
 
+    stepWidth := 6;
+
     while not entfernenBildFertig or not verschiebenBilderFertig do
     begin
       if not entfernenBildFertig then
       begin
+        altImage.Left := altImage.Left + stepWidth;
         altImage.Top := round(a + b*(altImage.Left-x1) + c*(altImage.Left-x1)*(altImage.Left-x2));
-        altImage.Left := altImage.Left + 1;
-        inc(k, 1);
-      end;
-      if k > kMax then
-      begin
-        entfernenBildFertig := true;
+        if (k+stepWidth)<= kMax then
+        begin
+          inc(k, stepWidth);
+        end else
+        begin
+          if ((k+stepWidth)> kMax) and (k < kMax) then
+          begin
+            k := kMax;
+          end else
+          begin
+            entfernenBildFertig := true;
+          end;
+        end;
       end;
       if self.FImages.Count > 0 then
       begin
