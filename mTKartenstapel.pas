@@ -311,12 +311,13 @@ begin
 
 
     x1 := altImage.Left;
-    x2 := destinationImage.Left;
-    x3 := abs(x3-x1) / 2;
     y1 := altImage.Top;
+
+    x2 := destinationImage.Left;
     y2 := destinationImage.Top;
-   // y2 := -altImage.Height;
-    y3 := 200;
+
+    x3 := abs(x2-x1) / 2 + altImage.Left;
+    y3 := -200;
 
     a := y1;
     b := (y2-y1)/(x2-x1);
@@ -328,19 +329,22 @@ begin
 
     while not entfernenBildFertig or not verschiebenBilderFertig do
     begin
-      altImage.Top := round(a + b*(altImage.Left-x1) + c*(altImage.Left-x1)*(altImage.Left-x2));
-      altImage.Left := altImage.Left + 1;
-      inc(k, 1);
+      if not entfernenBildFertig then
+      begin
+        altImage.Top := round(a + b*(altImage.Left-x1) + c*(altImage.Left-x1)*(altImage.Left-x2));
+        altImage.Left := altImage.Left + 1;
+        inc(k, 1);
+      end;
       if k > kMax then
       begin
         entfernenBildFertig := true;
       end;
-      if self.FImages.Count > 1 then
+      if self.FImages.Count > 0 then
       begin
         verschiebenBilderFertig := self.moveImageWhenDelete(i, iMax, pIndex, distance);
       end;
       application.ProcessMessages;
-      sleep(5);
+      sleep(1);
       inc(i);
     end;
     destinationImage.Picture.Assign(altImage.Picture);

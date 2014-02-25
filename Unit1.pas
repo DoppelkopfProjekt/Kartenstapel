@@ -30,7 +30,7 @@ implementation
 
 function TForm1.shouldDeletePicture(var destImage: TImage): Boolean;
 begin
-  destImage := stich4;
+  destImage := stich3;
   sleep(100);
   result := true;
 end;
